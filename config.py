@@ -1,5 +1,5 @@
 class Config:
-    guest_num = 5000
+    guest_num = 2500
 
     unique_attractions_num = 25     #unique because automatically for every real attraction there is generated also one more vr attraction 
     min_attraction_built_year = 2000
@@ -65,8 +65,8 @@ class Config:
     number_of_months = 6
     workers_num_per_attraction = 1
 
-    min_month_costs = 1000
-    max_month_costs = 3000
+    min_month_costs = 10000
+    max_month_costs = 15000
 
     possible_malfunctions_per_attraction = 3
     min_fix_cost = 2000

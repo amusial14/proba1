@@ -1,5 +1,5 @@
 class Config:
-    guest_num = 1000
+    guest_num = 5000
 
     unique_attractions_num = 25     #unique because automatically for every real attraction there is generated also one more vr attraction 
     min_attraction_built_year = 2000

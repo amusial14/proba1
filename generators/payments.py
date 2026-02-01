@@ -21,12 +21,7 @@ def generate_payment_ticket(baza, max_payments_per_guest, weights_for_payments, 
     for guest_id in range(1, guest_num + 1):
 
         # FIX: max_payments_per_guest MUSI być osiągalne
-        k = random.choices(
-            range(1, max_payments_per_guest + 1),
-            weights=weights_for_payments,
-            k=1
-        )[0]
-
+        k = random.randint(1, max_payments_per_guest)
         # FIX: można kupić ten sam bilet więcej niż raz
         chosen_tickets = random.choices(all_tickets, k=k)
 

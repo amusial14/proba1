@@ -2,6 +2,7 @@ from budowa import Baza
 from budowa import create_db
 from insertion import insert_data
 
+baza.reset_db()
 
 
 
@@ -45,6 +46,7 @@ baza.show_table("attractions")
 
 
 # baza.show_table("attractions")
+
 
 
 

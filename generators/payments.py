@@ -2,31 +2,27 @@ import pandas as pd
 import random
 
 
+
 def random_work_datetime(dates, open_hour, closure_hour):
     d = random.choice(dates)
 
-    # FIX: używamy open_hour i closure_hour zamiast stałych godzin
-    seconds = random.randint(open_hour * 3600, closure_hour * 3600 - 1)
+    seconds = random.randint(9*3600, 18*3600 - 1)
 
     return d + pd.Timedelta(seconds=seconds)
-
 
 def generate_payment_ticket(baza, max_payments_per_guest, weights_for_payments, guest_num) -> pd.DataFrame:
     payments = []
     tickets = []
-
     df_prices = pd.read_sql("SELECT * FROM prices", con=baza.con)
     all_tickets = df_prices["ticket_id"].tolist()
+    for i in range(1,guest_num+1):
+        k = random.choices(range(1, max_payments_per_guest), weights=weights_for_payments, k=1)[0]
 
-    for guest_id in range(1, guest_num + 1):
 
-        # FIX: max_payments_per_guest MUSI być osiągalne
-        k = random.randint(1, max_payments_per_guest)
-        # FIX: można kupić ten sam bilet więcej niż raz
-        chosen_tickets = random.choices(all_tickets, k=k)
+        chosen = random.sample(all_tickets, k)
 
-        for ticket_id in chosen_tickets:
-            payments.append(guest_id)
+        for ticket_id in chosen:
+            payments.append(i)
             tickets.append(ticket_id)
 
     dataframe_payment_ticket = pd.DataFrame({
@@ -36,37 +32,27 @@ def generate_payment_ticket(baza, max_payments_per_guest, weights_for_payments, 
 
     return dataframe_payment_ticket
 
-
 def generate_payments(baza, payments_tickets, open_hour, closure_hour) -> pd.DataFrame:
     payment_ids = payments_tickets["payment_id"].dropna().unique().tolist()
-
     dates = []
     amounts = []
-
-    # FIX: każdy gość może płacić (nie tylko 15+)
     guests_df = pd.read_sql("SELECT * FROM guests", con=baza.con)
-    guests = guests_df["guest_id"].to_list()
-
-    # zabezpieczenie gdy płatności > liczba gości
+    guests = guests_df.loc[guests_df["birth_date"] <= pd.Timestamp('2010-01-01').date(), "guest_id"].to_list()      #bierzemy starszych od 15
     while len(guests) < len(payment_ids):
-        guests += random.sample(guests, len(guests))
-
+        shuffled = random.sample(guests, len(guests))
+        guests= guests + shuffled
     guests = guests[:len(payment_ids)]
-
-    grouped_tickets = payments_tickets.groupby("payment_id")["ticket_id"].apply(list)
-
+    lst = payments_tickets.groupby("payment_id")["ticket_id"].apply(list)
     prices_df = pd.read_sql("SELECT * FROM prices", con=baza.con)
     price_dict = prices_df.set_index("ticket_id")["amount"].to_dict()
-
     dates_to_gen = pd.date_range("2025-01-01", "2026-01-01")
-
-    for tickets in grouped_tickets:
-        total_amount = sum(price_dict[ticket] for ticket in tickets)
-        amounts.append(total_amount)
-
-        payment_date = random_work_datetime(dates_to_gen, open_hour, closure_hour)
-        dates.append(payment_date)
-
+    for ls in lst:
+        total = 0
+        for ticket in ls:
+            total += price_dict[ticket]
+        amounts.append(total)
+        date = random_work_datetime(dates_to_gen, open_hour, closure_hour)
+        dates.append(date)
     dataframe_payments = pd.DataFrame({
         "payment_date": dates,
         "amount": amounts,

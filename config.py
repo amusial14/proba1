@@ -65,8 +65,8 @@ class Config:
     number_of_months = 6
     workers_num_per_attraction = 1
 
-    min_month_costs = 20000
-    max_month_costs = 30000
+    min_month_costs = 1000
+    max_month_costs = 3000
 
     possible_malfunctions_per_attraction = 3
     min_fix_cost = 2000
